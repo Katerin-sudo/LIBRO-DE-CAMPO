@@ -1,0 +1,153 @@
+---
+# title: "Diseños Experimentales"
+format:
+  html:
+    toc: true
+    toc-expand: true
+    toc-depth: 4
+    toc-location: left
+    number-sections: true
+    self-contained: true
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+execute: 
+  eval: true
+  output: true
+  warning: false
+  message: false
+  echo: true
+---
+
+# Project Setup
+
+```{r}
+#| label: setup
+ library(inti)
+
+source('https://inkaverse.com/setup.r')
+```
+
+# Diseño de experimentos
+
+## DBCA factorial
+
+Experimento para evaluar el efecto de dos variedades de papa (*Solanum tuberosum* L.) y tres dosis de compost sobre el rendimiento. Se utilizará un diseño de bloques completos al azar (DBCA), con arreglo factorial 2 × 3. El factor A será la variedad, con dos niveles: Canchán y Yungay. El factor B será la dosis de compost, con tres niveles: 0, 5 y 10 toneladas por hectárea. Se establecerán tres bloques, cada uno con los seis tratamientos distribuidos al azar, obteniendo 18 unidades experimentales. Se evaluará el rendimiento en kilogramos por parcela.
+
+>https://inkaverse.com/
+
+### codigo
+
+> https://inkaverse.com/articles/DoE-1_RCBD.html
+
+```{r}
+# 1. Define factors: variedad y compost
+factors <- list(
+  variedad = c("Canchan", "Yungay"),
+  compost = c("0", "5","10")
+)
+
+
+# Numero de tratamientos: 2 * 3 = 6
+
+# 2. Generate factorial RCBD layout
+design <- design_repblock(
+  nfactors = 2,
+  factors = factors,
+  type = "rcbd",
+  rep = 3,
+  zigzag = TRUE,
+  seed = 2026
+)
+
+# UE:6 * 3 = 18
+
+# Fieldbook preview
+fb <- design$fieldbook
+
+fb %>%
+  knitr::kable(caption = "Fieldbook preview")
+```
+
+### Croquis experimental
+
+```{r}
+# Spatial layout visualization
+tarpuy_plotdesign(
+  data = design,
+  factor = "variedad",
+  fill = c("plots", "compost")
+)
+```
+
+### Etiquetas
+
+```{r}
+font <- c("Permanent Marker", "Tillana", "Courgette")
+
+huito_fonts(font)
+```
+
+```{r}
+label <- fb %>%
+  label_layout(
+    size = c(4, 7),
+    border_color = "black"
+  ) %>%
+  include_image(
+    value = "https://flavjack.github.io/inti/img/inkaverse.png",
+    size = c(1, 1),
+    position = c(0.7, 6.35)
+  ) %>%
+  include_text(
+    value = "PAPA\nDBCA",
+    position = c(2.6, 6.35),
+    size = 13,
+    fontface = "bold",
+    color = "black"
+  ) %>%
+  include_text(
+    value = "variedad",
+    position = c(2, 5.55),
+    size = 11,
+    fontface = "bold",
+    color = "#294F74",
+    prefix = "Variedad: "
+  ) %>%
+  include_text(
+    value = "compost",
+    position = c(2, 5.05),
+    size = 10,
+    fontface = "bold",
+    color = "#00804A",
+    prefix = "Compost (t/ha): "
+  ) %>%
+  include_barcode(
+    value = "qrcode",
+    size = c(3.6, 3.6),
+    position = c(2, 2.9)
+  ) %>%
+  include_text(
+    value = "plots",
+    position = c(2, 0.6),
+    size = 16,
+    fontface = "bold",
+    color = "red",
+    prefix = "Parcela: "
+  )
+
+# Ver una muestra
+label %>%
+  label_print(mode = "preview")
+
+```
+
+```{r}
+label %>%
+  label_print(
+    mode = "complete",
+    filename = "Etiquetas_Papa_DBCA_Vertical"
+  )
+```
+
+
